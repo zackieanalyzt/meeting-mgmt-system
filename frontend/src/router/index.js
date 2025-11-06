@@ -1,41 +1,63 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
-import Meetings from '../views/Meetings.vue'
-import Reports from '../views/Reports.vue'
+import CurrentMeeting from '../views/CurrentMeeting.vue'
+import ReportsHistory from '../views/ReportsHistory.vue'
+import SearchReports from '../views/SearchReports.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    redirect: '/dashboard'
   },
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: { requiresAuth: false }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Dashboard
+    component: Dashboard,
+    meta: { requiresAuth: true }
   },
   {
-    path: '/meetings',
-    name: 'Meetings',
-    component: Meetings
+    path: '/current-meeting',
+    name: 'CurrentMeeting',
+    component: CurrentMeeting,
+    meta: { requiresAuth: true }
   },
   {
-    path: '/reports',
-    name: 'Reports',
-    component: Reports
+    path: '/reports-history',
+    name: 'ReportsHistory',
+    component: ReportsHistory,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/search-reports',
+    name: 'SearchReports',
+    component: SearchReports,
+    meta: { requiresAuth: true }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// Navigation guard for authentication
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('token')
+  
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.name === 'Login' && isAuthenticated) {
+    next('/dashboard')
+  } else {
+    next()
+  }
 })
 
 export default router
