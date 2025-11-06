@@ -1,21 +1,57 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 from app.core.database import get_db
-from app.schemas.meeting import MeetingResponse, MeetingCreate
+from app.schemas.meeting import MeetingResponse, MeetingCreate, MeetingUpdate
 
 router = APIRouter()
 
-@router.get("/", response_model=list[MeetingResponse])
-async def read_meetings(db: Session = Depends(get_db)):
-    # TODO: Get all meetings
+@router.get("/", response_model=List[MeetingResponse])
+async def read_meetings(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db)
+):
+    """Get all meetings with pagination"""
+    # TODO: Implement get all meetings
     pass
 
 @router.get("/current", response_model=MeetingResponse)
 async def read_current_meeting(db: Session = Depends(get_db)):
+    """Get current active meeting"""
     # TODO: Get current meeting
     pass
 
-@router.post("/", response_model=MeetingResponse)
+@router.get("/{meeting_id}", response_model=MeetingResponse)
+async def read_meeting(meeting_id: int, db: Session = Depends(get_db)):
+    """Get meeting by ID"""
+    # TODO: Get meeting by ID
+    pass
+
+@router.post("/", response_model=MeetingResponse, status_code=status.HTTP_201_CREATED)
 async def create_meeting(meeting: MeetingCreate, db: Session = Depends(get_db)):
+    """Create new meeting"""
     # TODO: Create new meeting
+    pass
+
+@router.put("/{meeting_id}", response_model=MeetingResponse)
+async def update_meeting(
+    meeting_id: int, 
+    meeting: MeetingUpdate, 
+    db: Session = Depends(get_db)
+):
+    """Update meeting"""
+    # TODO: Update meeting
+    pass
+
+@router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_meeting(meeting_id: int, db: Session = Depends(get_db)):
+    """Delete meeting"""
+    # TODO: Delete meeting
+    pass
+
+@router.post("/{meeting_id}/close", response_model=MeetingResponse)
+async def close_meeting(meeting_id: int, db: Session = Depends(get_db)):
+    """Close meeting"""
+    # TODO: Close meeting
     pass
