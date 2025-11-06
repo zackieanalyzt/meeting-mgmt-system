@@ -1,47 +1,104 @@
 version: '3.8'
 
 services:
-  postgres:
+  db:
     image: postgres:17
+    container_name: meeting_mgmt_db
     environment:
-      POSTGRES_DB: meeting_mgmt
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB:-meeting_mgmt}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mariadb:
     image: mariadb:11
+    container_name: meeting_mgmt_auth
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: authdb
+      MYSQL_ROOT_PASSWORD: ${MARIADB_PASSWORD:-password}
+      MYSQL_DATABASE: ${MARIADB_DB:-authdb}
+      MYSQL_USER: ${MARIADB_USER:-authuser}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD:-password}
     ports:
-      - "3306:3306"
+      - "${MARIADB_PORT:-3306}:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./backend/auth_init.sql:/docker-entrypoint-initdb.d/auth_init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meeting_mgmt_backend
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-meeting_mgmt}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
       - MARIADB_HOST=mariadb
+      - MARIADB_PORT=3306
+      - MARIADB_DB=${MARIADB_DB:-authdb}
+      - MARIADB_USER=${MARIADB_USER:-authuser}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-password}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
     depends_on:
-      - postgres
-      - mariadb
+      db:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
     volumes:
+      - ./backend:/app
       - ./uploads:/app/uploads
+      - backend_cache:/app/__pycache__
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: meeting_mgmt_frontend
     ports:
-      - "3000:3000"
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_APP_TITLE=ระบบจัดการการประชุม
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - frontend_cache:/app/.vite
+    restart: unless-stopped
+    command: npm run dev
 
 volumes:
   postgres_data:
+    driver: local
   mariadb_data:
+    driver: local
+  backend_cache:
+    driver: local
+  frontend_cache:
+    driver: local
+
+networks:
+  default:
+    name: meeting_mgmt_network
