@@ -9,11 +9,11 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "grespost"
     
-    MARIADB_HOST: str = "192.168.100.25"
+    MARIADB_HOST: str = "192.168.100.170"
     MARIADB_PORT: int = 3306
     MARIADB_DB: str = "hr"
-    MARIADB_USER: str = "ha"
-    MARIADB_PASSWORD: str = "Lee11142@11142"
+    MARIADB_USER: str = "root"
+    MARIADB_PASSWORD: str = "cjv671"
     
     # Security
     SECRET_KEY: str = "your-secret-key-here"
