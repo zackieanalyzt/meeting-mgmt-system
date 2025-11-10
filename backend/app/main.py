@@ -23,17 +23,15 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 @app.on_event("startup")
-async def startup_event():
-    """Initialize dummy data on startup"""
-    from app.core.database import SessionLocal
-    db = SessionLocal()
-    try:
-        create_dummy_users(db)
-        print("✅ Dummy users created successfully")
-    except Exception as e:
-        print(f"❌ Error creating dummy users: {e}")
-    finally:
-        db.close()
+def startup_event():
+    from app.services.auth_service import create_dummy_users
+    from app.core.database import Base, postgres_engine, PostgresSessionLocal  # ✅ เพิ่ม Base, engine
+    Base.metadata.create_all(bind=postgres_engine)  # ✅ ให้ SQLAlchemy สร้างตารางทั้งหมด
+
+    db = PostgresSessionLocal()
+    create_dummy_users(db)
+    db.close()
+
 
 @app.get("/")
 async def root():

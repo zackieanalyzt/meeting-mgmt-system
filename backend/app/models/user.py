@@ -15,8 +15,24 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, onupdate=datetime.utcnow)
     
-    # Relationships
-    user_roles: Mapped[List["UserRole"]] = relationship("UserRole", back_populates="user")
-    agendas: Mapped[List["Agenda"]] = relationship("Agenda", back_populates="created_by")
-    uploaded_files: Mapped[List["File"]] = relationship("File", back_populates="uploader")
-    search_logs: Mapped[List["SearchLog"]] = relationship("SearchLog", back_populates="user")
+    # ✅ Relationships (ระบุ foreign_keys ชัดเจน)
+    user_roles: Mapped[List["UserRole"]] = relationship(
+        "UserRole",
+        back_populates="user",
+        foreign_keys="[UserRole.user_id]"
+    )
+    
+    agendas: Mapped[List["Agenda"]] = relationship(
+        "Agenda",
+        back_populates="created_by"
+    )
+    
+    uploaded_files: Mapped[List["File"]] = relationship(
+        "File",
+        back_populates="uploader"
+    )
+    
+    search_logs: Mapped[List["SearchLog"]] = relationship(
+        "SearchLog",
+        back_populates="user"
+    )

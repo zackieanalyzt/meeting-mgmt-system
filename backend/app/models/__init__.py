@@ -1,5 +1,6 @@
 from .user import User
-from .role import Role, UserRole
+from .role import Role
+from .user_role import UserRole
 from .meeting import Meeting
 from .agenda import Agenda
 from .file import File
@@ -9,10 +10,10 @@ from .search_log import SearchLog
 # Import all models to ensure they are registered with SQLAlchemy
 __all__ = [
     "User",
-    "Role", 
+    "Role",
     "UserRole",
     "Meeting",
-    "Agenda", 
+    "Agenda",
     "File",
     "Report",
     "SearchLog"

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.models.role import Role, UserRole
+#from app.models.role import Role, UserRole
+from app.models import Role, UserRole
 
 def create_dummy_users(db: Session):
     """Create dummy users for testing"""
