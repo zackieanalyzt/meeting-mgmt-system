@@ -9,7 +9,7 @@ from app.services.auth_service import create_dummy_users
 app = FastAPI(
     title="Meeting Management System",
     description="ระบบจัดการวาระและรายงานการประชุม",
-    version="3.5.0"
+    version="3.5.1"
 )
 
 app.add_middleware(
@@ -35,8 +35,8 @@ def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "Meeting Management System API v3.5", "status": "running"}
+    return {"message": "Meeting Management System API v3.5.1", "status": "running"}
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "3.5.0"}
+    return {"status": "healthy", "version": "3.5.1"}

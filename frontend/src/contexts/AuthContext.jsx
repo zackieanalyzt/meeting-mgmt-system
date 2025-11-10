@@ -60,8 +60,30 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  const hasRole = (role) => {
+    return user?.roles?.includes(role) || false;
+  };
+
+  const isAdmin = () => {
+    return hasRole('Admin ใหญ่');
+  };
+
+  const isGroupAdmin = () => {
+    return hasRole('Admin กลุ่มงาน') || hasRole('Admin ใหญ่');
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated, loading, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      isAuthenticated, 
+      loading, 
+      login, 
+      logout,
+      hasRole,
+      isAdmin,
+      isGroupAdmin
+    }}>
       {children}
     </AuthContext.Provider>
   );

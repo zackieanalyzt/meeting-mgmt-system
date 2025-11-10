@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Form, Depends
 from sqlalchemy.orm import Session
 from app.services.hr_auth_service import verify_hr_user
-from app.core.auth import create_access_token
+from app.core.auth import create_access_token, get_user_roles
 from app.core.database import get_db
 from app.models.user import User
 
@@ -19,11 +19,17 @@ def login(
     # Get user info from PostgreSQL
     user = db.query(User).filter(User.username == username).first()
     
+    # Get user roles
+    roles = []
+    if user:
+        roles = get_user_roles(user, db)
+    
     user_data = {
         "username": username,
         "email": user.email if user else f"{username}@hospital.local",
         "fullname": user.fullname if user else username,
-        "department": user.department if user else "Unknown"
+        "department": user.department if user else "Unknown",
+        "roles": roles
     }
 
     token = create_access_token(data={"sub": username})

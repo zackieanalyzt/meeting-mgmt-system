@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 from app.core.database import get_db
 from app.core.rbac import require_admin, require_authenticated
 from app.models.user import User
+from app.models.meeting import Meeting
 from app.schemas.meeting import MeetingResponse, MeetingCreate, MeetingUpdate
 
 router = APIRouter()
@@ -16,8 +18,8 @@ async def read_meetings(
     current_user: User = Depends(require_authenticated)
 ):
     """Get all meetings with pagination"""
-    # TODO: Implement get all meetings
-    pass
+    meetings = db.query(Meeting).order_by(Meeting.meeting_date.desc()).offset(skip).limit(limit).all()
+    return meetings
 
 @router.get("/current", response_model=MeetingResponse)
 async def read_current_meeting(
@@ -25,8 +27,10 @@ async def read_current_meeting(
     current_user: User = Depends(require_authenticated)
 ):
     """Get current active meeting"""
-    # TODO: Get current meeting
-    pass
+    meeting = db.query(Meeting).filter(Meeting.status == "active").order_by(Meeting.meeting_date.desc()).first()
+    if not meeting:
+        raise HTTPException(status_code=404, detail="No active meeting found")
+    return meeting
 
 @router.get("/{meeting_id}", response_model=MeetingResponse)
 async def read_meeting(
@@ -35,8 +39,10 @@ async def read_meeting(
     current_user: User = Depends(require_authenticated)
 ):
     """Get meeting by ID"""
-    # TODO: Get meeting by ID
-    pass
+    meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return meeting
 
 @router.post("/", response_model=MeetingResponse, status_code=status.HTTP_201_CREATED)
 async def create_meeting(
@@ -45,8 +51,11 @@ async def create_meeting(
     current_user: User = Depends(require_admin)
 ):
     """Create new meeting (Admin only)"""
-    # TODO: Create new meeting
-    pass
+    db_meeting = Meeting(**meeting.model_dump())
+    db.add(db_meeting)
+    db.commit()
+    db.refresh(db_meeting)
+    return db_meeting
 
 @router.put("/{meeting_id}", response_model=MeetingResponse)
 async def update_meeting(
@@ -56,8 +65,18 @@ async def update_meeting(
     current_user: User = Depends(require_admin)
 ):
     """Update meeting (Admin only)"""
-    # TODO: Update meeting
-    pass
+    db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    if not db_meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    
+    update_data = meeting.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_meeting, field, value)
+    
+    db_meeting.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_meeting)
+    return db_meeting
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_meeting(
@@ -66,8 +85,13 @@ async def delete_meeting(
     current_user: User = Depends(require_admin)
 ):
     """Delete meeting (Admin only)"""
-    # TODO: Delete meeting
-    pass
+    db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    if not db_meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    
+    db.delete(db_meeting)
+    db.commit()
+    return None
 
 @router.post("/{meeting_id}/close", response_model=MeetingResponse)
 async def close_meeting(
@@ -76,5 +100,13 @@ async def close_meeting(
     current_user: User = Depends(require_admin)
 ):
     """Close meeting (Admin only)"""
-    # TODO: Close meeting
-    pass
+    db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    if not db_meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    
+    db_meeting.status = "closed"
+    db_meeting.closed_at = datetime.utcnow()
+    db_meeting.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_meeting)
+    return db_meeting

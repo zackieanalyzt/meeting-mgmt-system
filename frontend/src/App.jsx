@@ -5,6 +5,8 @@ import LoginForm from './components/auth/LoginForm';
 import Dashboard from './components/dashboard/Dashboard';
 import MeetingList from './components/meetings/MeetingList';
 import MeetingDetail from './components/meetings/MeetingDetail';
+import CreateMeeting from './components/meetings/CreateMeeting';
+import RoleGuard from './components/common/RoleGuard';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +40,17 @@ function App() {
             element={
               <ProtectedRoute>
                 <MeetingList />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/meetings/create" 
+            element={
+              <ProtectedRoute>
+                <RoleGuard allowedRoles={['Admin ใหญ่']}>
+                  <CreateMeeting />
+                </RoleGuard>
               </ProtectedRoute>
             } 
           />
