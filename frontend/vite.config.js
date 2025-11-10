@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -11,10 +11,12 @@ export default defineConfig({
     },
     hmr: {
       port: 5173
+    },
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      }
     }
-  },
-  define: {
-    __VUE_OPTIONS_API__: true,
-    __VUE_PROD_DEVTOOLS__: false
   }
 })
