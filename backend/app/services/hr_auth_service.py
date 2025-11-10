@@ -13,7 +13,7 @@ def verify_hr_user(username: str, password: str) -> bool:
 
         query = text("""
             SELECT COUNT(*) FROM hr.personnel
-            WHERE username = :u AND password = :p
+            WHERE TRIM(username) = :u AND password = :p
         """)
         result = db.execute(query, {"u": username, "p": hashed_pw}).scalar()
         print(f"[DEBUG] username={username}, input_pw={password}, hashed={hashed_pw}, result={result}")
