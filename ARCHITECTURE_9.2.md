@@ -4,10 +4,10 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (React)                      │
-│                    http://localhost:5173                     │
+│                        Frontend (React)                     │
+│                    http://localhost:5173                    │
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
+│                                                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │  LoginForm   │  │  Dashboard   │  │ MeetingList  │      │
 │  │              │  │              │  │              │      │
@@ -15,7 +15,7 @@
 │  │ - Password   │  │ - Roles      │  │ - Cards      │      │
 │  │ - Submit     │  │ - Actions    │  │ - Status     │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
-│                                                               │
+│                                                            │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │MeetingDetail │  │CreateMeeting │  │  RoleGuard   │      │
 │  │              │  │              │  │              │      │
@@ -23,22 +23,22 @@
 │  │ - Actions    │  │ - Validate   │  │ - Allow/Deny │      │
 │  │ - Admin Btns │  │ - Submit     │  │ - Fallback   │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
-│                                                               │
-│  ┌─────────────────────────────────────────────────┐        │
-│  │            AuthContext (Global State)            │        │
-│  │  - user, token, isAuthenticated                 │        │
-│  │  - login(), logout()                            │        │
-│  │  - isAdmin(), isGroupAdmin(), hasRole()         │        │
-│  └─────────────────────────────────────────────────┘        │
-│                                                               │
-│  ┌─────────────────────────────────────────────────┐        │
-│  │         API Service (Axios Instance)             │        │
-│  │  - baseURL: http://127.0.0.1:8000              │        │
-│  │  - Request Interceptor: Inject JWT              │        │
-│  │  - Response Interceptor: Handle 401             │        │
-│  └─────────────────────────────────────────────────┘        │
-│                                                               │
-└───────────────────────┬─────────────────────────────────────┘
+│                                                            │
+│  ┌─────────────────────────────────────────────────┐       │
+│  │            AuthContext (Global State)           │       │
+│  │  - user, token, isAuthenticated                 │       │
+│  │  - login(), logout()                            │       │
+│  │  - isAdmin(), isGroupAdmin(), hasRole()         │       │
+│  └─────────────────────────────────────────────────┘       │
+│                                                            │
+│  ┌─────────────────────────────────────────────────┐       │
+│  │         API Service (Axios Instance)            │       │
+│  │  - baseURL: http://127.0.0.1:8000               │       │
+│  │  - Request Interceptor: Inject JWT              │       │
+│  │  - Response Interceptor: Handle 401             │       │
+│  └─────────────────────────────────────────────────┘       │
+│                                                            │
+└───────────────────────┬────────────────────────────────────┘
                         │
                         │ HTTP/REST API
                         │ JWT Bearer Token
