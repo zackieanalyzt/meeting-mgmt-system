@@ -32,12 +32,10 @@ class Agenda(Base):
     files: Mapped[List["File"]] = relationship(
         "File", back_populates="agenda", cascade="all, delete-orphan"
     )
-
-    # ความสัมพันธ์ใหม่กับวัตถุประสงค์
-    objectives: Mapped[List["AgendaObjective"]] = relationship(
-        "AgendaObjective",
-        secondary="agenda_objective_map",
-        backref="agendas"
+    objective_maps: Mapped[List["AgendaObjectiveMap"]] = relationship(
+        "AgendaObjectiveMap", 
+        back_populates="agenda",
+        cascade="all, delete-orphan"
     )
 
     # ───────────────────────────────

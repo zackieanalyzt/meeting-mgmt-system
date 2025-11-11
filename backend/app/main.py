@@ -25,12 +25,25 @@ app.include_router(api_router, prefix="/api/v1")
 @app.on_event("startup")
 def startup_event():
     from app.services.auth_service import create_dummy_users
-    from app.core.database import Base, postgres_engine, PostgresSessionLocal  # ✅ เพิ่ม Base, engine
-    Base.metadata.create_all(bind=postgres_engine)  # ✅ ให้ SQLAlchemy สร้างตารางทั้งหมด
+    from app.services.objective_service import ObjectiveService
+    from app.core.database import Base, postgres_engine, PostgresSessionLocal
+    
+    # Create all tables
+    Base.metadata.create_all(bind=postgres_engine)
+    print("✅ Database tables created")
 
     db = PostgresSessionLocal()
-    create_dummy_users(db)
-    db.close()
+    try:
+        create_dummy_users(db)
+        print("✅ Dummy users created")
+        
+        # Seed default objectives
+        ObjectiveService.seed_default_objectives(db)
+        print("✅ Default objectives seeded")
+    except Exception as e:
+        print(f"❌ Startup error: {e}")
+    finally:
+        db.close()
 
 
 @app.get("/")
