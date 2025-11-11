@@ -1,4 +1,6 @@
-# Python
+# ==============================
+# 🐍 Python
+# ==============================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -21,43 +23,80 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual Environment
+# ==============================
+# 🧩 Virtual Environment
+# ==============================
 venv/
-env/
+.venv/
 ENV/
+env/
+venv.bak/
 
-# Environment variables
+# ==============================
+# 🔐 Environment variables
+# ==============================
 .env
-.env.local
-.env.production
+.env.*
+!example.env
 
-# Database
+# ==============================
+# 🗃️ Database
+# ==============================
 *.db
 *.sqlite3
+*.sql
+*.dump
 
-# Logs
+# ==============================
+# 🧾 Logs
+# ==============================
 *.log
 logs/
+*.pot
+*.tmp
+*.bak
+*.orig
 
-# Node.js
-node_modules/
+# ==============================
+# ⚙️ Node.js / Frontend
+# ==============================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Frontend build
-frontend/dist/
-frontend/.vite/
-
-# IDE
+# ==============================
+# 💻 IDE / Editor
+# ==============================
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ==============================
+# 🖥️ OS-Specific
+# ==============================
+# macOS
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
 
-# Uploads
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==============================
+# 📂 Uploads / Media
+# ==============================
 uploads/
+media/
+
+# ==============================
+# 🧬 Alembic / Migration cache
+# ==============================
+alembic/versions/__pycache__/
