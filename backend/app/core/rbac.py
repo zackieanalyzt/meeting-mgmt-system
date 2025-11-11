@@ -28,45 +28,53 @@ def require_roles(roles: Union[str, List[str]]):
     return RoleChecker(roles)
 
 # Predefined role checkers based on the system specification
-require_admin = RoleChecker(["Admin ใหญ่"])
-require_group_admin = RoleChecker(["Admin กลุ่มงาน", "Admin ใหญ่"])
-require_any_admin = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน"])
-require_authenticated = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "ผู้ใช้ทั่วไป"])
+# Support both Thai and English role names for flexibility
+require_admin = RoleChecker(["Admin ใหญ่", "admin_main"])
+require_group_admin = RoleChecker(["Admin กลุ่มงาน", "Admin ใหญ่", "admin_group", "admin_main"])
+require_any_admin = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "admin_main", "admin_group"])
+require_authenticated = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "ผู้ใช้ทั่วไป", "admin_main", "admin_group", "user"])
 
 # Permission matrix based on the specification
 class Permissions:
+    # Admin role names (support both Thai and English)
+    ADMIN_MAIN = ["Admin ใหญ่", "admin_main"]
+    ADMIN_GROUP = ["Admin กลุ่มงาน", "admin_group"]
+    USER_GENERAL = ["ผู้ใช้ทั่วไป", "user"]
+    ANY_ADMIN = ADMIN_MAIN + ADMIN_GROUP
+    ALL_ROLES = ADMIN_MAIN + ADMIN_GROUP + USER_GENERAL
+    
     @staticmethod
     def can_create_meeting(user_roles: List[str]) -> bool:
-        return "Admin ใหญ่" in user_roles
+        return any(role in user_roles for role in Permissions.ADMIN_MAIN)
     
     @staticmethod
     def can_approve_agenda(user_roles: List[str]) -> bool:
-        return "Admin ใหญ่" in user_roles
+        return any(role in user_roles for role in Permissions.ADMIN_MAIN)
     
     @staticmethod
     def can_add_agenda(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in ["Admin ใหญ่", "Admin กลุ่มงาน"])
+        return any(role in user_roles for role in Permissions.ANY_ADMIN)
     
     @staticmethod
     def can_upload_file(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in ["Admin ใหญ่", "Admin กลุ่มงาน"])
+        return any(role in user_roles for role in Permissions.ANY_ADMIN)
     
     @staticmethod
     def can_edit_before_close(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in ["Admin ใหญ่", "Admin กลุ่มงาน"])
+        return any(role in user_roles for role in Permissions.ANY_ADMIN)
     
     @staticmethod
     def can_close_meeting(user_roles: List[str]) -> bool:
-        return "Admin ใหญ่" in user_roles
+        return any(role in user_roles for role in Permissions.ADMIN_MAIN)
     
     @staticmethod
     def can_manage_reports(user_roles: List[str]) -> bool:
-        return "Admin ใหญ่" in user_roles
+        return any(role in user_roles for role in Permissions.ADMIN_MAIN)
     
     @staticmethod
     def can_search_reports(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in ["Admin ใหญ่", "Admin กลุ่มงาน", "ผู้ใช้ทั่วไป"])
+        return any(role in user_roles for role in Permissions.ALL_ROLES)
     
     @staticmethod
     def can_view_agenda(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in ["Admin ใหญ่", "Admin กลุ่มงาน", "ผู้ใช้ทั่วไป"])
+        return any(role in user_roles for role in Permissions.ALL_ROLES)

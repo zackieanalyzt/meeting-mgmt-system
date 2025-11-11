@@ -6,11 +6,14 @@ from app.models import Role, UserRole
 def create_dummy_users(db: Session):
     """Create dummy users for testing"""
     
-    # Create roles if they don't exist
+    # Create roles if they don't exist (support both Thai and English names)
     roles_data = [
         {"role_name": "Admin ใหญ่", "description": "ผู้ดูแลระบบหลัก"},
         {"role_name": "Admin กลุ่มงาน", "description": "ผู้ดูแลกลุ่มงาน"},
-        {"role_name": "ผู้ใช้ทั่วไป", "description": "ผู้ใช้งานทั่วไป"}
+        {"role_name": "ผู้ใช้ทั่วไป", "description": "ผู้ใช้งานทั่วไป"},
+        {"role_name": "admin_main", "description": "Main Administrator (English)"},
+        {"role_name": "admin_group", "description": "Group Administrator (English)"},
+        {"role_name": "user", "description": "General User (English)"}
     ]
     
     for role_data in roles_data:
