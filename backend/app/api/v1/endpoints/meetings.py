@@ -51,7 +51,11 @@ async def create_meeting(
     current_user: User = Depends(require_admin)
 ):
     """Create new meeting (Admin only)"""
-    db_meeting = Meeting(**meeting.model_dump())
+    # db_meeting = Meeting(**meeting.model_dump())  
+    # แก้ไขเพื่อให้ส่งค่า
+    db_meeting = Meeting(**meeting.model_dump(),
+    created_by=current_user.user_id
+    )
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)

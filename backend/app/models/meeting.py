@@ -15,7 +15,9 @@ class Meeting(Base):
     location: Mapped[str] = mapped_column(String(100), nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
-    created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users_local.user_id"), nullable=False)
+    # แก้ไขเมื่อ 13 พย 68 เพื่อให้สามารถ insert ผู้ขอเข้าในตารางได้
+    # created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users_local.user_id"), nullable=False)
+    created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users_local.user_id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, onupdate=datetime.utcnow)
     closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
