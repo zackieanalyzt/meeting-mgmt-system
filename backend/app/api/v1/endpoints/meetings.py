@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime
 from app.core.database import get_db
 from app.core.rbac import require_admin, require_authenticated
+from app.core.audit import log_meeting_create, log_meeting_update, log_meeting_delete, log_meeting_close
 from app.models.user import User
 from app.models.meeting import Meeting
 from app.schemas.meeting import MeetingResponse, MeetingCreate, MeetingUpdate
@@ -77,6 +78,10 @@ async def create_meeting(
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
+    
+    # Audit log
+    log_meeting_create(current_user.username, db_meeting.meeting_id, db_meeting.meeting_title)
+    
     # Reload with creator relationship
     db_meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.meeting_id == db_meeting.meeting_id).first()
     return _populate_creator_fullname(db_meeting)
@@ -100,6 +105,10 @@ async def update_meeting(
     db_meeting.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_meeting)
+    
+    # Audit log
+    log_meeting_update(current_user.username, db_meeting.meeting_id, db_meeting.meeting_title)
+    
     return _populate_creator_fullname(db_meeting)
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -108,13 +117,20 @@ async def delete_meeting(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
-    """Delete meeting (Admin only)"""
+    """Delete meeting (Admin and Group Admin allowed)"""
     db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     
+    # Store info for audit log before deletion
+    meeting_title = db_meeting.meeting_title
+    
     db.delete(db_meeting)
     db.commit()
+    
+    # Audit log
+    log_meeting_delete(current_user.username, meeting_id, meeting_title)
+    
     return None
 
 @router.post("/{meeting_id}/close", response_model=MeetingResponse)
@@ -133,4 +149,8 @@ async def close_meeting(
     db_meeting.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_meeting)
+    
+    # Audit log
+    log_meeting_close(current_user.username, db_meeting.meeting_id, db_meeting.meeting_title)
+    
     return _populate_creator_fullname(db_meeting)

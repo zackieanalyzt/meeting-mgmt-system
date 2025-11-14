@@ -5,14 +5,16 @@ import api from '../../services/api';
 const CreateMeeting = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    meeting_name: '',
+    meeting_title: '',
     meeting_date: '',
-    meeting_time: '',
+    start_time: '',
+    end_time: '',
     location: '',
     description: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -21,15 +23,33 @@ const CreateMeeting = () => {
     });
   };
 
+  const validateForm = () => {
+    if (formData.start_time && formData.end_time) {
+      if (formData.end_time <= formData.start_time) {
+        setError('End time must be after start time');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
 
     try {
       const response = await api.post('/api/v1/meetings', formData);
-      alert('Meeting created successfully!');
-      navigate(`/meetings/${response.data.meeting_id}`);
+      setSuccess('Meeting created successfully! Redirecting...');
+      setTimeout(() => {
+        navigate(`/meetings/${response.data.meeting_id}`);
+      }, 1500);
     } catch (err) {
       setError('Failed to create meeting: ' + (err.response?.data?.detail || err.message));
       setLoading(false);

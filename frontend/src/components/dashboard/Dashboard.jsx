@@ -138,7 +138,7 @@ const Dashboard = () => {
             View All Meetings
           </button>
           
-          {isAdmin() && (
+          {(isAdmin() || isGroupAdmin()) && (
             <button 
               onClick={() => navigate('/meetings/create')}
               style={{ 
@@ -150,7 +150,7 @@ const Dashboard = () => {
                 borderRadius: '4px'
               }}
             >
-              Create New Meeting
+              สร้างการประชุมใหม่
             </button>
           )}
           

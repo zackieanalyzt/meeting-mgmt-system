@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginForm from './components/auth/LoginForm';
 import Dashboard from './components/dashboard/Dashboard';
-import MeetingList from './components/meetings/MeetingList';
-import MeetingDetail from './components/meetings/MeetingDetail';
-import CreateMeeting from './components/meetings/CreateMeeting';
+import MeetingList from './pages/MeetingList';
+import MeetingDetail from './pages/MeetingDetail';
+import CreateMeeting from './pages/MeetingCreate';
 import RoleGuard from './components/common/RoleGuard';
 
 // Protected Route wrapper
@@ -48,7 +48,7 @@ function App() {
             path="/meetings/create" 
             element={
               <ProtectedRoute>
-                <RoleGuard allowedRoles={['Admin ใหญ่']}>
+                <RoleGuard allowedRoles={['Admin ใหญ่', 'Admin กลุ่มงาน']}>
                   <CreateMeeting />
                 </RoleGuard>
               </ProtectedRoute>
