@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 from datetime import datetime
 from app.core.database import get_db
@@ -10,6 +10,25 @@ from app.schemas.meeting import MeetingResponse, MeetingCreate, MeetingUpdate
 
 router = APIRouter()
 
+def _populate_creator_fullname(meeting: Meeting) -> dict:
+    """Helper to populate created_by_fullname from creator relationship"""
+    meeting_dict = {
+        "meeting_id": meeting.meeting_id,
+        "meeting_title": meeting.meeting_title,
+        "meeting_date": meeting.meeting_date,
+        "start_time": meeting.start_time,
+        "end_time": meeting.end_time,
+        "location": meeting.location,
+        "description": meeting.description,
+        "status": meeting.status,
+        "created_by": meeting.created_by,
+        "created_by_fullname": meeting.creator.fullname if meeting.creator else None,
+        "created_at": meeting.created_at,
+        "updated_at": meeting.updated_at,
+        "closed_at": meeting.closed_at,
+    }
+    return meeting_dict
+
 @router.get("/", response_model=List[MeetingResponse])
 async def read_meetings(
     skip: int = 0, 
@@ -18,8 +37,8 @@ async def read_meetings(
     current_user: User = Depends(require_authenticated)
 ):
     """Get all meetings with pagination"""
-    meetings = db.query(Meeting).order_by(Meeting.meeting_date.desc()).offset(skip).limit(limit).all()
-    return meetings
+    meetings = db.query(Meeting).options(joinedload(Meeting.creator)).order_by(Meeting.meeting_date.desc()).offset(skip).limit(limit).all()
+    return [_populate_creator_fullname(m) for m in meetings]
 
 @router.get("/current", response_model=MeetingResponse)
 async def read_current_meeting(
@@ -27,10 +46,10 @@ async def read_current_meeting(
     current_user: User = Depends(require_authenticated)
 ):
     """Get current active meeting"""
-    meeting = db.query(Meeting).filter(Meeting.status == "active").order_by(Meeting.meeting_date.desc()).first()
+    meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.status == "active").order_by(Meeting.meeting_date.desc()).first()
     if not meeting:
         raise HTTPException(status_code=404, detail="No active meeting found")
-    return meeting
+    return _populate_creator_fullname(meeting)
 
 @router.get("/{meeting_id}", response_model=MeetingResponse)
 async def read_meeting(
@@ -39,10 +58,10 @@ async def read_meeting(
     current_user: User = Depends(require_authenticated)
 ):
     """Get meeting by ID"""
-    meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.meeting_id == meeting_id).first()
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
-    return meeting
+    return _populate_creator_fullname(meeting)
 
 @router.post("/", response_model=MeetingResponse, status_code=status.HTTP_201_CREATED)
 async def create_meeting(
@@ -50,16 +69,17 @@ async def create_meeting(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
-    """Create new meeting (Admin only)"""
-    # db_meeting = Meeting(**meeting.model_dump())  
-    # แก้ไขเพื่อให้ส่งค่า
-    db_meeting = Meeting(**meeting.model_dump(),
-    created_by=current_user.user_id
+    """Create new meeting (Admin and Group Admin allowed)"""
+    db_meeting = Meeting(
+        **meeting.model_dump(),
+        created_by=current_user.user_id
     )
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
-    return db_meeting
+    # Reload with creator relationship
+    db_meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.meeting_id == db_meeting.meeting_id).first()
+    return _populate_creator_fullname(db_meeting)
 
 @router.put("/{meeting_id}", response_model=MeetingResponse)
 async def update_meeting(
@@ -68,8 +88,8 @@ async def update_meeting(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
-    """Update meeting (Admin only)"""
-    db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    """Update meeting (Admin and Group Admin allowed)"""
+    db_meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.meeting_id == meeting_id).first()
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     
@@ -80,7 +100,7 @@ async def update_meeting(
     db_meeting.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_meeting)
-    return db_meeting
+    return _populate_creator_fullname(db_meeting)
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_meeting(
@@ -103,8 +123,8 @@ async def close_meeting(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
-    """Close meeting (Admin only)"""
-    db_meeting = db.query(Meeting).filter(Meeting.meeting_id == meeting_id).first()
+    """Close meeting (Admin and Group Admin allowed)"""
+    db_meeting = db.query(Meeting).options(joinedload(Meeting.creator)).filter(Meeting.meeting_id == meeting_id).first()
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     
@@ -113,4 +133,4 @@ async def close_meeting(
     db_meeting.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_meeting)
-    return db_meeting
+    return _populate_creator_fullname(db_meeting)

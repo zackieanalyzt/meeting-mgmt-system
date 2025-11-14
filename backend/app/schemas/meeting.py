@@ -31,6 +31,7 @@ class MeetingResponse(MeetingBase):
     meeting_id: int
     status: str
     created_by: int
+    created_by_fullname: Optional[str] = None  # Added for Priority 3
     created_at: datetime
     updated_at: Optional[datetime] = None
     closed_at: Optional[datetime] = None

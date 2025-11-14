@@ -29,7 +29,8 @@ def require_roles(roles: Union[str, List[str]]):
 
 # Predefined role checkers based on the system specification
 # Support both Thai and English role names for flexibility
-require_admin = RoleChecker(["Admin ใหญ่", "admin_main"])
+# UPDATED: require_admin now allows both admin_main and admin_group to create meetings
+require_admin = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "admin_main", "admin_group"])
 require_group_admin = RoleChecker(["Admin กลุ่มงาน", "Admin ใหญ่", "admin_group", "admin_main"])
 require_any_admin = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "admin_main", "admin_group"])
 require_authenticated = RoleChecker(["Admin ใหญ่", "Admin กลุ่มงาน", "ผู้ใช้ทั่วไป", "admin_main", "admin_group", "user"])
@@ -45,7 +46,8 @@ class Permissions:
     
     @staticmethod
     def can_create_meeting(user_roles: List[str]) -> bool:
-        return any(role in user_roles for role in Permissions.ADMIN_MAIN)
+        # UPDATED: Both admin_main and admin_group can create meetings
+        return any(role in user_roles for role in Permissions.ANY_ADMIN)
     
     @staticmethod
     def can_approve_agenda(user_roles: List[str]) -> bool:
