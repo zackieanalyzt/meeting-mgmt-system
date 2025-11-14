@@ -83,22 +83,31 @@
         <h2 class="text-xl font-semibold text-gray-800 mb-4">การดำเนินการด่วน</h2>
         <div class="space-y-3">
           <router-link 
+            to="/meetings/create" 
+            class="flex items-center justify-center w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            สร้างการประชุมใหม่
+          </router-link>
+          <router-link 
+            to="/meetings" 
+            class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded hover:bg-green-700"
+          >
+            ดูรายการการประชุม
+          </router-link>
+          <router-link 
             to="/current-meeting" 
-            class="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded hover:bg-blue-700"
+            class="block w-full bg-purple-600 text-white text-center py-2 px-4 rounded hover:bg-purple-700"
           >
             ดูวาระประชุมปัจจุบัน
           </router-link>
           <router-link 
             to="/reports-history" 
-            class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded hover:bg-green-700"
+            class="block w-full bg-orange-600 text-white text-center py-2 px-4 rounded hover:bg-orange-700"
           >
             ดูรายงานการประชุม
-          </router-link>
-          <router-link 
-            to="/search-reports" 
-            class="block w-full bg-purple-600 text-white text-center py-2 px-4 rounded hover:bg-purple-700"
-          >
-            ค้นหารายงาน
           </router-link>
         </div>
       </div>

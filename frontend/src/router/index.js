@@ -23,6 +23,24 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/meetings',
+    name: 'MeetingList',
+    component: () => import('../views/MeetingList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/meetings/create',
+    name: 'CreateMeeting',
+    component: () => import('../views/MeetingCreate.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/meetings/:id',
+    name: 'MeetingDetail',
+    component: () => import('../views/MeetingDetail.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/current-meeting',
     name: 'CurrentMeeting',
     component: CurrentMeeting,

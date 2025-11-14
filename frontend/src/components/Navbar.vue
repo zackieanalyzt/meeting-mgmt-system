@@ -16,6 +16,13 @@
               แดชบอร์ด
             </router-link>
             <router-link 
+              to="/meetings" 
+              class="nav-link"
+              :class="{ 'text-blue-200': $route.name === 'MeetingList' || $route.name === 'CreateMeeting' || $route.name === 'MeetingDetail' }"
+            >
+              จัดการการประชุม
+            </router-link>
+            <router-link 
               to="/current-meeting" 
               class="nav-link"
               :class="{ 'text-blue-200': $route.name === 'CurrentMeeting' }"
